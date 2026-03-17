@@ -21,6 +21,15 @@ service cloud.firestore {
         && validString(request.resource.data.type, 1, 80);
     }
 
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{userId} {
+      allow create: if request.auth.uid == userId;
+      allow read: if request.auth.uid == userId || isAdmin();
+    }
+
     match /clients/{clientId} {
       allow read: if true;
       allow create, update: if isClientPayload();

@@ -18,6 +18,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthChange, logout as firebaseLogout } from '../lib/auth';
+import { getDoc, doc } from 'firebase/firestore';
+import { firestore } from '../lib/firebase';
 
 const AuthContext = createContext(null);
 
@@ -30,7 +32,24 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     return onAuthChange((firebaseUser) => {
-      setUser(firebaseUser);
+      const loadRol = async () =>{
+      const userDoc = await getDoc(doc(firestore, 'users',firebaseUser.uid));
+             
+       if (userDoc.exists()) {
+        setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            role: userDoc.data().role,
+      });
+      }else {
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            role: 'user',
+          });
+        }
+      }
+      return firebaseUser ? loadRol() : setUser(null);
     });
   }, []);
 

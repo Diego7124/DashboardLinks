@@ -13,10 +13,17 @@
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import AdminPage from './pages/AdminPage';
 
 function AppRouter() {
   const { user } = useAuth();
-  return user ? <DashboardPage /> : <LoginPage />;
+  if(!user){
+    return <LoginPage />;
+  } else if (user.role === 'admin') {
+    return <AdminPage />;
+  } else {
+    return <DashboardPage />;
+  }
 }
 
 export default function App() {

@@ -15,7 +15,9 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 
-import { auth } from './firebase';
+import { auth, firestore } from './firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+
 
 /**
  * Inicia sesion con email y contrasena.
@@ -35,8 +37,15 @@ export function login(email, password) {
  * @param {string} password - Contrasena (minimo 6 caracteres).
  * @returns {Promise<import('firebase/auth').UserCredential>}
  */
-export function register(email, password) {
-  return createUserWithEmailAndPassword(auth, email, password);
+export async function register(email, password, role = 'user') {
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const user = userCredential.user;
+  await setDoc(doc(firestore, 'users',user.uid), {
+    email: user.email,
+    role,
+    createdAt: serverTimestamp(),
+  });
+  return userCredential;
 }
 
 /**
