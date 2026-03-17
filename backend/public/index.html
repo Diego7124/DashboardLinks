@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Links</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Dashboard de clientes</p>
+          <h1>Accesos centralizados por cliente</h1>
+          <p class="hero-copy">
+            Visualiza tus clientes y consulta los links disponibles dentro de cada cuenta.
+          </p>
+        </div>
+        <div class="hero-stat">
+          <span id="client-count">0</span>
+          <p>clientes cargados</p>
+        </div>
+      </header>
+
+      <main class="dashboard-grid">
+        <section>
+          <div class="section-title">
+            <h2>Clientes</h2>
+            <p>Selecciona un cliente para ver sus accesos</p>
+          </div>
+          <div id="clients-list" class="card-list"></div>
+        </section>
+
+        <section>
+          <div class="section-title">
+            <h2 id="detail-title">Links</h2>
+            <p id="detail-copy">Selecciona un cliente para mostrar su listado</p>
+          </div>
+          <div id="links-list" class="link-grid empty-state">
+            Aun no hay un cliente seleccionado.
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

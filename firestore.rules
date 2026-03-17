@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function validString(field, min, max) {
+      return field is string && field.size() >= min && field.size() <= max;
+    }
+
+    function isClientPayload() {
+      return request.resource.data.keys().hasOnly(['name', 'category', 'description'])
+        && validString(request.resource.data.name, 1, 120)
+        && validString(request.resource.data.category, 1, 80)
+        && validString(request.resource.data.description, 0, 500);
+    }
+
+    function isLinkPayload() {
+      return request.resource.data.keys().hasOnly(['title', 'url', 'type'])
+        && validString(request.resource.data.title, 1, 120)
+        && validString(request.resource.data.url, 8, 500)
+        && request.resource.data.url.matches('^https://.+')
+        && validString(request.resource.data.type, 1, 80);
+    }
+
+    match /clients/{clientId} {
+      allow read: if true;
+      allow create, update: if isClientPayload();
+      allow delete: if true;
+
+      match /links/{linkId} {
+        allow read: if true;
+        allow create, update: if isLinkPayload();
+        allow delete: if true;
+      }
+    }
+  }
+}
