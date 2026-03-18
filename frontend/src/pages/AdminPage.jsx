@@ -1,8 +1,6 @@
 import React from 'react';
-import { useEffect, useState} from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { firestore } from '../lib/firebase';
-import { updateDoc, doc } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { getUsers, updateUser, deleteUser as removeUser } from '../lib/userStore';
 
 
 
@@ -14,9 +12,8 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const ref = collection(firestore, 'users');
-        const snapshot = await getDocs(ref);
-        setUsers(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+        const data = await getUsers();
+        setUsers(data);
         setError(null);
       } catch (err) {
         console.error(err);
@@ -30,31 +27,34 @@ const AdminPage = () => {
   }, []);
 
   const promoteToAdmin = async (userId) => {
-    try{
-        const useRef = doc(firestore, 'users', userId);
-        await updateDoc(useRef, { role: 'admin' });
-        setUsers((prevUsers) =>
-          prevUsers.map((u) => (u.id === userId ? { ...u, role: 'admin' } : u))
-        );
-      } catch (err) {
-        console.error(err);
-        setError(err.message || 'Error al actualizar el rol');
-      }
+    try {
+      await updateUser(userId, { role: 'admin' });
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: 'admin' } : u)));
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Error al actualizar el rol');
     }
+  };
 
-    const demoteToUser = async (userId) => {
-        try {
-            const useRef = doc(firestore, 'users', userId)
-            await updateDoc(useRef, {role: 'user'})
-            setUsers((prevUsers)=>{
-                prevUsers.map((u) => u.id == userId ? { ...u, role: 'user' } : u)
-            })
-            
-        } catch (error) {
-            console.error(err);
-            setError(err.message || 'Error al actualizar el rol'); 
-        }
+  const demoteToUser = async (userId) => {
+    try {
+      await updateUser(userId, { role: 'user' });
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: 'user' } : u)));
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Error al actualizar el rol');
     }
+  };
+
+  const deleteUser = async (userId) => {
+    try {
+      await removeUser(userId);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Error al eliminar usuario');
+    }
+  };
   return (
     <div>
       <h1>Panel de Administración</h1>
@@ -78,7 +78,7 @@ const AdminPage = () => {
                 <td>
                   <button onClick={()=>promoteToAdmin(u.id, u.role == 'admin')}>Promover a admin</button>
                   <button onClick={()=>demoteToUser(u.id)}>Degradar a usuario</button>
-                  <button onClick={() => {}}>Eliminar usuario</button>
+                  <button onClick={() => deleteUser(u.id)}>Eliminar usuario</button>
                 </td>
               </tr>
             ))}

@@ -77,10 +77,13 @@ export default function DashboardPage() {
       setErrorMessage('');
     } catch (err) {
       setErrorMessage(err.message);
+      if (err.message.includes('Acceso denegado')){
+        setTimeout(() => logout(), 1500);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [selectedClient.id]);
+  }, [selectedClient.id, logout]);
 
   useEffect(() => { loadDashboard(); }, []);
 

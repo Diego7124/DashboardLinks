@@ -15,7 +15,6 @@
  */
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 /** @type {import('firebase/app').FirebaseOptions} */
@@ -30,9 +29,7 @@ const firebaseConfig = {
 
 /** Instancia principal de la app Firebase */
 const firebaseApp = initializeApp(firebaseConfig);
-/** Referencia a Firestore para operaciones de datos */
-const firestore = getFirestore(firebaseApp);
 /** Instancia de Firebase Auth para autenticacion */
 const auth = getAuth(firebaseApp);
 
-export { firebaseApp, firestore, auth };
+export { firebaseApp, auth };

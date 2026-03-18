@@ -15,8 +15,8 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 
-import { auth, firestore } from './firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth } from './firebase';
+import { API_PATHS } from './constants';
 
 
 /**
@@ -26,8 +26,17 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
  * @param {string} password - Contrasena del usuario.
  * @returns {Promise<import('firebase/auth').UserCredential>}
  */
-export function login(email, password) {
-  return signInWithEmailAndPassword(auth, email, password);
+export async function login(email, password) {
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  const token = await userCredential.user.getIdToken();
+  const res = await fetch(API_PATHS.AUTH_VERIFY, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    await signOut(auth);
+    throw new Error('Tu correo no está autorizado para acceder.');
+  }
+  return userCredential;
 }
 
 /**
@@ -39,12 +48,18 @@ export function login(email, password) {
  */
 export async function register(email, password, role = 'user') {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  const user = userCredential.user;
-  await setDoc(doc(firestore, 'users',user.uid), {
-    email: user.email,
-    role,
-    createdAt: serverTimestamp(),
+  const token = await userCredential.user.getIdToken();
+  const res = await fetch(API_PATHS.USERS, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ email, role }),
   });
+  if (!res.ok) {
+    // Si el correo no es whitelist, limpiar la cuenta Auth huérfana
+    await userCredential.user.delete();
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message || 'Tu correo no está autorizado para registrarse.');
+  }
   return userCredential;
 }
 

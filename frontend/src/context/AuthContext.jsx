@@ -18,8 +18,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthChange, logout as firebaseLogout } from '../lib/auth';
-import { getDoc, doc } from 'firebase/firestore';
-import { firestore } from '../lib/firebase';
+import { getMyProfile } from '../lib/userStore';
 
 const AuthContext = createContext(null);
 
@@ -32,24 +31,20 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     return onAuthChange((firebaseUser) => {
-      const loadRol = async () =>{
-      const userDoc = await getDoc(doc(firestore, 'users',firebaseUser.uid));
-             
-       if (userDoc.exists()) {
-        setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            role: userDoc.data().role,
-      });
-      }else {
+      if (!firebaseUser) return setUser(null);
+      getMyProfile()
+        .then((profile) => {
           setUser({
             uid: firebaseUser.uid,
             email: firebaseUser.email,
-            role: 'user',
+            role: profile?.role || 'user',
           });
-        }
-      }
-      return firebaseUser ? loadRol() : setUser(null);
+        })
+        .catch(() => {
+          // 403 o cualquier error de whitelist: cerrar sesión
+          firebaseLogout().catch(() => {});
+          setUser(null);
+        });
     });
   }, []);
 
@@ -57,18 +52,18 @@ export function AuthProvider({ children }) {
     await firebaseLogout();
   }
 
-  if (user === undefined) {
-    return (
-      <div className="auth-loading">
-        <div className="spinner" />
-        <p>Cargando...</p>
-      </div>
-    );
-  }
+  const isLoading = user === undefined;
 
   return (
-    <AuthContext.Provider value={{ user, logout: handleLogout }}>
-      {children}
+    <AuthContext.Provider value={{ user: isLoading ? null : user, logout: handleLogout, isLoading }}>
+      {isLoading ? (
+        <div className="auth-loading">
+          <div className="spinner" />
+          <p>Cargando...</p>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }

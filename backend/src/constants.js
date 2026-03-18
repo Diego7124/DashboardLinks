@@ -21,6 +21,8 @@ const COLLECTIONS = {
   CLIENTS: 'clients',
   /** Sub-coleccion de links dentro de cada cliente */
   LINKS: 'links',
+  /** Coleccion de perfiles de usuario */
+  USERS: 'users',
 };
 
 /**
@@ -42,6 +44,8 @@ const DEFAULTS = {
 const API = {
   PREFIX: '/api',
   CLIENTS: '/api/clients',
+  USERS: '/api/users',
+  AUTH_VERIFY: '/api/auth/verify',
   HEALTH: '/api/health',
 };
 
@@ -58,6 +62,9 @@ const ERRORS = {
   ROUTE_NOT_FOUND: 'Ruta no encontrada',
   INTERNAL_SERVER: 'Error interno del servidor',
   FIRESTORE_NOT_CONFIGURED: 'Firestore no esta configurado. Revisa tus variables de entorno.',
+  USER_NOT_FOUND: 'Usuario no encontrado',
+  EMAIL_REQUIRED: 'El email es obligatorio',
+  EMAIL_NOT_WHITELISTED: 'Tu correo no esta autorizado para acceder.',
 };
 
 /**

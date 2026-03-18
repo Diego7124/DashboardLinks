@@ -20,6 +20,8 @@ const express = require('express');
 const cors = require('cors');
 
 const clientRoutes = require('./routes/clientRoutes');
+const userRoutes = require('./routes/userRoutes');
+const { VerifyWhitelistEmail } = require('./middleware/whiteList');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandlers');
 const { isFirestoreConfigured } = require('../config/FirebaseConfig');
 const { API } = require('./constants');
@@ -54,7 +56,12 @@ app.get(API.HEALTH, (_request, response) => {
   });
 });
 
+app.get(API.AUTH_VERIFY, VerifyWhitelistEmail, (req, res) => {
+  res.json({ uid: req.user.uid, email: req.user.email });
+});
+
 app.use(API.CLIENTS, clientRoutes);
+app.use(API.USERS, userRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 

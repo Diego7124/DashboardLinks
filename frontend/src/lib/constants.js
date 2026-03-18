@@ -30,6 +30,16 @@ export const API_PATHS = {
   clientLinks: (clientId) => `${API_BASE}/api/clients/${clientId}/links`,
   /** @param {string} clientId @param {string} linkId @returns {string} Ruta de un link especifico */
   clientLinkDetail: (clientId, linkId) => `${API_BASE}/api/clients/${clientId}/links/${linkId}`,
+
+  /** Ruta base para usuarios */
+  USERS: `${API_BASE}/api/users`,
+  /** Perfil del usuario autenticado */
+  USER_ME: `${API_BASE}/api/users/me`,
+  /** @param {string} userId @returns {string} Ruta de un usuario especifico */
+  userDetail: (userId) => `${API_BASE}/api/users/${userId}`,
+
+  /** Verificacion de whitelist */
+  AUTH_VERIFY: `${API_BASE}/api/auth/verify`,
 };
 
 /**

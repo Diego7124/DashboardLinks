@@ -18,6 +18,7 @@
  */
 
 const express = require('express');
+const { VerifyWhitelistEmail } = require('../middleware/whiteList');
 
 const {
   listClients,
@@ -33,14 +34,14 @@ const {
 
 const router = express.Router();
 
-router.get('/', listClients);
-router.post('/', createClient);
-router.get('/:clientId', getClientById);
-router.put('/:clientId', updateClient);
-router.delete('/:clientId', deleteClient);
-router.get('/:clientId/links', getClientLinks);
-router.post('/:clientId/links', createClientLink);
-router.put('/:clientId/links/:linkId', updateClientLink);
-router.delete('/:clientId/links/:linkId', deleteClientLink);
+router.get('/', VerifyWhitelistEmail, listClients);
+router.post('/', VerifyWhitelistEmail, createClient);
+router.get('/:clientId', VerifyWhitelistEmail, getClientById);
+router.put('/:clientId', VerifyWhitelistEmail, updateClient);
+router.delete('/:clientId', VerifyWhitelistEmail, deleteClient);
+router.get('/:clientId/links', VerifyWhitelistEmail, getClientLinks);
+router.post('/:clientId/links', VerifyWhitelistEmail, createClientLink);
+router.put('/:clientId/links/:linkId', VerifyWhitelistEmail, updateClientLink);
+router.delete('/:clientId/links/:linkId', VerifyWhitelistEmail, deleteClientLink);
 
 module.exports = router;
