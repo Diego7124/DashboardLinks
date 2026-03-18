@@ -32,9 +32,9 @@ async function registerProfile(request, response, next) {
 
 async function getMyProfile(request, response, next) {
   try {
-    const profile = await getUserProfile(request.user.uid);
+    let profile = await getUserProfile(request.user.uid);
     if (!profile) {
-      return response.status(HTTP_STATUS.NOT_FOUND).json({ message: ERRORS.USER_NOT_FOUND });
+      profile = await createUserProfile(request.user.uid, request.user.email);
     }
     return response.json(profile);
   } catch (error) {

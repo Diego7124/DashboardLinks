@@ -40,10 +40,18 @@ export function AuthProvider({ children }) {
             role: profile?.role || 'user',
           });
         })
-        .catch(() => {
-          // 403 o cualquier error de whitelist: cerrar sesión
-          firebaseLogout().catch(() => {});
-          setUser(null);
+        .catch((err) => {
+          if (err.status === 401 || err.status === 403) {
+            firebaseLogout().catch(() => {});
+            setUser(null);
+          } else {
+            // 404, red, etc: usar info basica sin cerrar sesion
+            setUser({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              role: 'user',
+            });
+          }
         });
     });
   }, []);

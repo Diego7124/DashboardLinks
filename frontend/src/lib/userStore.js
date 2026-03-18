@@ -17,7 +17,9 @@ async function fetchJson(path, options = {}) {
   const res = await fetch(path, { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message || `Error ${res.status}`);
+    const err = new Error(body.message || `Error ${res.status}`);
+    err.status = res.status;
+    throw err;
   }
   if (res.status === 204) return null;
   return res.json();
